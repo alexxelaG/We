@@ -1,4 +1,4 @@
-# 🎉 **We :) — Sports Friendship & Matching App**
+# **We :) — Sports Friendship & Matching App**
 
 We :) is a **sports-focused, friendship-first** web application designed to connect people through shared athletic interests. Instead of traditional social or dating platforms, We :) helps users meet compatible sports partners, join groups, schedule games, and build real, platonic friendships.
 
@@ -6,50 +6,35 @@ This project is built as part of **CS-152** at **San José State University**.
 
 ---
 
-# 🚀 **Features**
+# **Features**
 
-### 🏀 **Sports Matching**
+### **Sports Matching**
 - Match users based on **sport**, **skill level**, and **personality traits**
 - View compatible players nearby
 - Smart compatibility scoring
 
-### 💬 **Real-Time Chat (Coming Soon)**
+### **Real-Time Chat (Coming Soon)**
 - 1-on-1 chats for matched users  
 - Group chat for community groups  
 - WebSocket-powered messaging (planned)
 
-### 📅 **Smart Scheduling**
+### **Smart Scheduling**
 - Users set availability blocks  
 - System finds overlapping times  
 - Helps coordinate games and meetups
 
-### 👥 **Community Groups**
+### **Community Groups**
 - Public & private sports groups  
 - Join, invite, and manage members  
 - Ratings & reviews for group experiences (planned)
 
-### 🔐 **User Accounts (Planned)**
+### **User Accounts (Planned)**
 - Authentication (login/signup)  
 - Player profiles & sport preferences  
 
 ---
 
-# 🖼 **Screenshots**
-
-> Update these with your actual images once ready.
-
-### **Home Page**
-![Home](./screenshots/home.png)
-
-### **Match Page**
-![Match](./screenshots/match.png)
-
-### **Community Page**
-![Community](./screenshots/community.png)
-
----
-
-# 🛠 **Tech Stack**
+# **Tech Stack**
 
 ### **Frontend**
 - React (Vite)
@@ -61,36 +46,10 @@ This project is built as part of **CS-152** at **San José State University**.
 - Python microservices (matching engine)  
 - MySQL relational database  
 
-### **Real-time Features**
-- WebSockets (planned)
 
 ---
 
-# 📁 **Project Structure**
-
-```
-src/
- ├── assets/
- ├── components/
- ├── context/
- ├── pages/
- │   ├── HomePage.jsx
- │   ├── MatchPage.jsx
- │   ├── GroupPage.jsx
- │   ├── ChatPage.jsx
- │   ├── LoginPage.jsx
- │   └── SignupPage.jsx
- ├── services/
- ├── styles/
- │   └── Home.css
- ├── App.jsx
- ├── App.css
- ├── main.jsx
-```
-
----
-
-# ⚙️ **Installation & Setup**
+# **Installation & Setup**
 
 ### 1. Clone the repo
 ```bash
@@ -115,7 +74,7 @@ http://localhost:5173
 
 ---
 
-# 🌱 **Roadmap**
+# **Roadmap**
 
 ### ✔ Completed
 - UI/UX design  
@@ -137,7 +96,7 @@ http://localhost:5173
 
 ---
 
-# 🤝 **Team**
+# **Team**
 
 **Alejandro Garcia** — Full Stack Developer  
 **Gerald Susanteo** — Full Stack Developer  
@@ -146,7 +105,3 @@ http://localhost:5173
 **Course:** CS-152 — SJSU  
 
 ---
-
-# 📜 **License**
-This project is for educational purposes under SJSU course guidelines.  
-You may modify or extend it for learning and portfolio use.
