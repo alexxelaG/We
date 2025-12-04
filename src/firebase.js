@@ -1,0 +1,18 @@
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCN_DLKnbqYyoMU-1C7u7Xs9Z-8cHutwg0",
+    authDomain: "we-demo-432d1.firebaseapp.com",
+    projectId: "we-demo-432d1",
+    storageBucket: "we-demo-432d1.firebasestorage.app",
+    messagingSenderId: "976280001912",
+    appId: "1:976280001912:web:85ab456f24766a56333c8d",
+    measurementId: "G-TPC9SSDWQF"
+  };
+
+  // initialize FIrebase
+  const app = initializeApp(firebaseConfig);
+
+  // export teh firestore instance
+  export const db = getFirestore(app);

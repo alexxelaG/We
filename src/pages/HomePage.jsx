@@ -1,6 +1,19 @@
 import React from "react";
 import "../styles/Home.css";
 
+import { db } from "../firebase";
+import { collection, addDoc} from "firebase/firestore";
+
+async function testAddUser() {
+  await addDoc(collection(db, "users"), {
+    name: "Test User",
+    sport: "Basketball",
+    skill: "Beginner"
+  });
+
+  alert("User added!");
+}
+
 export default function HomePage() {
   return (
     <div className="home-container">
@@ -19,6 +32,8 @@ export default function HomePage() {
         <div className="home-buttons">
           <button className="home-login">LOGIN</button>
           <button className="home-signup">SIGN UP</button>
+
+          <button onClick={testAddUser}>Add Test User</button>
         </div>
       </div>
     </div>
