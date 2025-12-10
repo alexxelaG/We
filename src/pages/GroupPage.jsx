@@ -1,38 +1,75 @@
-import React from 'react';
-import { Container, Typography, Card, CardContent, Button, Box, Chip } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import {
+  Container, Typography, Card, CardContent,
+  Button, Box, Chip
+} from "@mui/material";
+
+import { db } from "../firebase";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  arrayUnion
+} from "firebase/firestore";
 
 export default function GroupPage() {
-  const groups = [
-    {
-      name: 'Weekend Ballers',
-      sport: 'Basketball',
-      members: 12,
-      description: 'Casual pickup basketball. All skill levels welcome.',
-      tags: ['Casual', 'Friendly']
-    },
-    {
-      name: 'Pickle Pros',
-      sport: 'Pickleball',
-      members: 7,
-      description: 'Looking for competitive mixed doubles players.',
-      tags: ['Competitive', 'Intermediate']
-    },
-    {
-      name: 'Morning Runners Club',
-      sport: 'Running',
-      members: 18,
-      description: '3–5 mile group runs around San Jose. Pace flexible.',
-      tags: ['Fitness', 'Social']
-    }
-  ];
+  const [groups, setGroups] = useState([]);
 
-  const handleJoinGroup = (groupName) => {
-    alert(`You joined the group: ${groupName}`);
+  // Load groups from Firestore
+  useEffect(() => {
+    async function loadGroups() {
+      const querySnap = await getDocs(collection(db, "communities"));
+      const list = querySnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setGroups(list);
+    }
+    loadGroups();
+  }, []);
+
+  // JOIN GROUP FUNCTION
+  const handleJoinGroup = async (group) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user || !user.id) {
+      alert("Please login first!");
+      return;
+    }
+
+    // 🔥 DEMO USER MODE — store joined groups locally only
+    if (user.id === "aHWFsUxIMbO86C3c74666ynhGyG3") {
+      const joined = JSON.parse(localStorage.getItem("demoJoinedGroups")) || [];
+
+      if (!joined.includes(group.id)) {
+        joined.push(group.id);
+        localStorage.setItem("demoJoinedGroups", JSON.stringify(joined));
+      }
+
+      alert(`Joined ${group.title}! (Demo Mode)`);
+      return;
+    }
+
+    // 🔥 REAL FIREBASE USER — update Firestore
+    try {
+      await updateDoc(doc(db, "users", user.id), {
+        joinedGroups: arrayUnion(group.id)
+      });
+
+      await updateDoc(doc(db, "communities", group.id), {
+        members: arrayUnion(user.id)
+      });
+
+      alert(`Joined ${group.title}!`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to join group.");
+    }
   };
 
   return (
     <Container sx={{ mt: 5 }}>
-      {/* Page Header */}
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Sports Groups & Communities
       </Typography>
@@ -41,43 +78,41 @@ export default function GroupPage() {
         Join local sports groups, find teammates, chat, and plan meetups.
       </Typography>
 
-      {/* Group Cards */}
-      {groups.map((group, index) => (
-        <Card key={index} sx={{ mb: 3, boxShadow: 3 }}>
-          <CardContent>
-            <Typography variant="h5" fontWeight="bold">
-              {group.name}
-            </Typography>
+      {groups.map(group => {
+        const demoJoined =
+          JSON.parse(localStorage.getItem("demoJoinedGroups")) || [];
+        const alreadyJoined = demoJoined.includes(group.id);
 
-            <Typography sx={{ mt: 1 }}>
-              <strong>Sport:</strong> {group.sport}
-            </Typography>
+        return (
+          <Card key={group.id} sx={{ mb: 3, boxShadow: 3 }}>
+            <CardContent>
+              <Typography variant="h5" fontWeight="bold">
+                {group.title}
+              </Typography>
 
-            <Typography>
-              <strong>Members:</strong> {group.members}
-            </Typography>
+              <Typography sx={{ mt: 1 }}>
+                <strong>Sport:</strong> {group.sport}
+              </Typography>
 
-            <Typography color="text.secondary" sx={{ mt: 1, mb: 2 }}>
-              {group.description}
-            </Typography>
+              <Typography>
+                <strong>Members:</strong> {group.members?.length || 0}
+              </Typography>
 
-            {/* Tags */}
-            <Box sx={{ mb: 2 }}>
-              {group.tags.map((tag, i) => (
-                <Chip key={i} label={tag} sx={{ mr: 1, mb: 1 }} />
-              ))}
-            </Box>
+              <Box sx={{ mb: 2 }}>
+                <Chip label={group.sport} sx={{ mr: 1, mb: 1 }} />
+              </Box>
 
-            {/* Join Button */}
-            <Button 
-              variant="contained"
-              onClick={() => handleJoinGroup(group.name)}
-            >
-              Join Group
-            </Button>
-          </CardContent>
-        </Card>
-      ))}
+              <Button
+                variant="contained"
+                disabled={alreadyJoined}
+                onClick={() => handleJoinGroup(group)}
+              >
+                {alreadyJoined ? "Joined" : "Join Group"}
+              </Button>
+            </CardContent>
+          </Card>
+        );
+      })}
     </Container>
   );
 }

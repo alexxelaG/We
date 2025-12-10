@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Card, CardContent, Link as MuiLink } from '@mui/material';
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Card,
+  CardContent,
+  Link as MuiLink
+} from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 
 export default function LoginPage() {
@@ -7,6 +15,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const [error, setError] = useState('');
+
+  const handleDemoLogin = () => {
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        id: "aHWFsUxIMbO86C3c74666ynhGyG3", 
+        name: "Alex Garcia",
+        email: "demo@we.com"
+      })
+    );
+
+    navigate("/profile");
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -16,13 +37,15 @@ export default function LoginPage() {
       return;
     }
 
-    // temporary auth simulation
-    localStorage.setItem('user', JSON.stringify({ email }));
+    localStorage.setItem("user", JSON.stringify({ email }));
     navigate('/profile');
   };
 
   return (
-    <Container maxWidth="sm" sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <Container
+      maxWidth="sm"
+      sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+    >
       <Card sx={{ width: '100%', p: 2, boxShadow: 3 }}>
         <CardContent>
           <Typography variant="h4" align="center" gutterBottom>
@@ -58,6 +81,16 @@ export default function LoginPage() {
               Login
             </Button>
           </form>
+
+          {/* DEMO LOGIN BUTTON */}
+          <Button
+            variant="outlined"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={handleDemoLogin}
+          >
+            Continue as Demo User
+          </Button>
 
           <Typography align="center" sx={{ mt: 2 }}>
             Don't have an account?{' '}

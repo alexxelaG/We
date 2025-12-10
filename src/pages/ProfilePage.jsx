@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -9,33 +9,117 @@ import {
   Box,
   Avatar,
   MenuItem
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+} from "@mui/material";
+
+import { auth, db } from "../firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage
-  const storedUser = JSON.parse(localStorage.getItem('user')) || {
-    name: "",
-    email: "",
+  // USER STATE
+  const [userId, setUserId] = useState(null);
+  const [isDemo, setIsDemo] = useState(false);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [favoriteSport, setFavoriteSport] = useState("");
+  const [skillLevel, setSkillLevel] = useState("");
+  const [bio, setBio] = useState("");
+
+  useEffect(() => {
+    const demoUser = JSON.parse(localStorage.getItem("user"));
+
+    if (demoUser && demoUser.id) {
+      console.log("Loading DEMO USER:", demoUser);
+
+      setIsDemo(true);
+      setUserId(demoUser.id);
+      setName(demoUser.name);
+      setEmail(demoUser.email);
+      setFavoriteSport("Basketball");
+      setSkillLevel("Beginner");
+      setBio("I love staying active and meeting new people!");
+
+      setLoading(false);
+      return; 
+    }
+
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+
+      setUserId(user.uid);
+      setEmail(user.email);
+
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        const data = snap.data();
+        setName(data.name || "");
+        setFavoriteSport(data.favoriteSport || "Basketball");
+        setSkillLevel(data.skillLevel || "Beginner");
+        setBio(data.bio || "I love staying active and meeting new people!");
+      }
+
+      setLoading(false);
+    });
+
+    return () => unsub();
+  }, [navigate]);
+
+  const handleSave = async () => {
+    if (isDemo) {
+      const updated = {
+        id: userId,
+        name,
+        email,
+        favoriteSport,
+        skillLevel,
+        bio
+      };
+
+      localStorage.setItem("user", JSON.stringify(updated));
+      alert("Demo profile updated!");
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "users", userId), {
+        name,
+        favoriteSport,
+        skillLevel,
+        bio
+      });
+
+      alert("Profile updated!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update profile.");
+    }
   };
 
-  const [name, setName] = useState(storedUser.name || "");
-  const [email] = useState(storedUser.email || "");
-  const [bio, setBio] = useState("I love staying active and meeting new people through sports!");
-  const [favoriteSport, setFavoriteSport] = useState("Basketball");
-  
-  const handleSave = () => {
-    const updated = { name, email, bio, favoriteSport };
-    localStorage.setItem("userProfile", JSON.stringify(updated));
-    alert("Profile updated!");
-  };
+  // ---------------------------------------------
+  // 4️⃣ LOGOUT HANDLING
+  // ---------------------------------------------
+  const handleLogout = async () => {
+    if (isDemo) {
+      localStorage.removeItem("user");
+      navigate("/login");
+      return;
+    }
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
+    await signOut(auth);
     navigate("/login");
   };
+
+  if (loading) return <Typography sx={{ mt: 10, textAlign: "center" }}>Loading...</Typography>;
 
   return (
     <Container maxWidth="sm" sx={{ mt: 5 }}>
@@ -46,15 +130,10 @@ export default function ProfilePage() {
       <Card sx={{ p: 2, boxShadow: 3 }}>
         <CardContent>
 
-          {/* PROFILE IMAGE */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-            <Avatar
-              src="https://i.imgur.com/1Q9Z1Zm.png"
-              sx={{ width: 120, height: 120 }}
-            />
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+            <Avatar src="https://i.imgur.com/1Q9Z1Zm.png" sx={{ width: 120, height: 120 }} />
           </Box>
 
-          {/* NAME */}
           <TextField
             label="Name"
             fullWidth
@@ -63,7 +142,6 @@ export default function ProfilePage() {
             sx={{ mb: 2 }}
           />
 
-          {/* EMAIL (read-only) */}
           <TextField
             label="Email"
             fullWidth
@@ -72,7 +150,6 @@ export default function ProfilePage() {
             sx={{ mb: 2 }}
           />
 
-          {/* FAVORITE SPORT */}
           <TextField
             select
             label="Favorite Sport"
@@ -82,13 +159,23 @@ export default function ProfilePage() {
             sx={{ mb: 2 }}
           >
             {["Basketball", "Soccer", "Tennis", "Running", "Pickleball", "Volleyball"].map((sport) => (
-              <MenuItem key={sport} value={sport}>
-                {sport}
-              </MenuItem>
+              <MenuItem key={sport} value={sport}>{sport}</MenuItem>
             ))}
           </TextField>
 
-          {/* BIO */}
+          <TextField
+            select
+            label="Skill Level"
+            fullWidth
+            value={skillLevel}
+            onChange={(e) => setSkillLevel(e.target.value)}
+            sx={{ mb: 2 }}
+          >
+            <MenuItem value="Beginner">Beginner</MenuItem>
+            <MenuItem value="Intermediate">Intermediate</MenuItem>
+            <MenuItem value="Advanced">Advanced</MenuItem>
+          </TextField>
+
           <TextField
             label="Bio"
             fullWidth
@@ -99,8 +186,7 @@ export default function ProfilePage() {
             sx={{ mb: 3 }}
           />
 
-          {/* BUTTONS */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Button variant="contained" onClick={handleSave}>
               Save Changes
             </Button>
@@ -109,6 +195,7 @@ export default function ProfilePage() {
               Logout
             </Button>
           </Box>
+
         </CardContent>
       </Card>
     </Container>
