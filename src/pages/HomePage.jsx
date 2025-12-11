@@ -1,103 +1,65 @@
-import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Card, CardContent, Link as MuiLink } from '@mui/material';
-import { useNavigate, Link } from 'react-router-dom';
+import React from "react";
+import { Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
-
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+export default function HomePage() {
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate("/profile");
-    } catch (err) {
-      setError("Invalid email or password.");
-    }
-  };
-
-  const handleDemoLogin = () => {
-    console.log("DEMO LOGIN CLICKED!");
-  
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        id: "aHWFsUxIMbO86C3c74666ynhGyG3",
-        name: "Alex Garcia",
-        email: "demo@we.com"
-      })
-    );
-  
-    console.log("Saved user:", JSON.parse(localStorage.getItem("user")));
-    navigate("/profile");
-  };
-  
-  
-
   return (
-    <Container maxWidth="sm" sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <Card sx={{ width: '100%', p: 2, boxShadow: 3 }}>
-        <CardContent>
-          <Typography variant="h4" align="center" gutterBottom>
-            Login
-          </Typography>
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        textAlign: "center",
+        background: "linear-gradient(135deg, #4a6bff, #6c82ff, #8fa0ff)",
+        padding: "40px",
+        color: "white",
+      }}
+    >
+      <h1 style={{ fontSize: "50px", marginBottom: "10px", fontWeight: "bold" }}>
+        We :)
+      </h1>
 
-          {error && (
-            <Typography color="error" sx={{ mb: 2 }}>
-              {error}
-            </Typography>
-          )}
+      <h3 style={{ fontWeight: "300", marginBottom: "20px" }}>
+        Make sports friends. Play more. Connect better.
+      </h3>
 
-          {/* EMAIL LOGIN */}
-          <form onSubmit={handleLogin}>
-            <TextField
-              label="Email"
-              type="email"
-              fullWidth
-              margin="normal"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+      <p style={{ maxWidth: "650px", fontSize: "18px", opacity: 0.95, marginBottom: "35px" }}>
+        A friendly sports-based social app to match with players nearby, join groups,
+        schedule games, and build real connections.
+      </p>
 
-            <TextField
-              label="Password"
-              type="password"
-              fullWidth
-              margin="normal"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+      <div style={{ display: "flex", gap: "15px" }}>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: "white",
+            color: "#4a6bff",
+            fontWeight: "bold",
+            width: "130px",
+          }}
+          onClick={() => navigate("/login")}
+        >
+          LOGIN
+        </Button>
 
-            <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-              Login
-            </Button>
-          </form>
-
-          {/* DEMO LOGIN */}
-          <Button 
-            variant="outlined"
-            fullWidth
-            sx={{ mt: 2 }}
-            onClick={handleDemoLogin}
-          >
-            Continue as Demo User
-          </Button>
-
-          <Typography align="center" sx={{ mt: 2 }}>
-            Don't have an account?{' '}
-            <MuiLink component={Link} to="/signup">
-              Sign up
-            </MuiLink>
-          </Typography>
-        </CardContent>
-      </Card>
-    </Container>
+        <Button
+          variant="outlined"
+          sx={{
+            borderColor: "white",
+            color: "white",
+            fontWeight: "bold",
+            width: "130px",
+          }}
+          onClick={() => navigate("/signup")}
+        >
+          SIGN UP
+        </Button>
+      </div>
+    </div>
   );
 }

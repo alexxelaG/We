@@ -16,9 +16,15 @@ import SchedulePage from './pages/SchedulePage.jsx';
 
 export default function App() {
   return (
-    <>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(180deg, #4A58F7, #2D37C8)",
+        paddingBottom: "40px",
+      }}
+    >
       {/* NAVBAR */}
-      <AppBar position="static" sx={{ background: '#1976d2' }}>
+      <AppBar position="static" sx={{ background: '#000000' }}>
         <Toolbar>
           <Button color="inherit" component={Link} to="/">Home</Button>
           <Button color="inherit" component={Link} to="/match">Match</Button>
@@ -40,8 +46,7 @@ export default function App() {
         <Route path="/schedule" element={<SchedulePage />} />
       </Routes>
 
-      {/* TOAST POPUPS */}
       <ToastContainer />
-    </>
+    </div>
   );
 }
