@@ -1,118 +1,130 @@
 import React, { useEffect, useState } from "react";
 import {
-  Container, Typography, Card, CardContent,
-  Button, Box, Chip
+  Container,
+  Typography,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  Box,
+  Chip,
+  Stack
 } from "@mui/material";
 
-import { db } from "../firebase";
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-  arrayUnion
-} from "firebase/firestore";
-
 export default function GroupPage() {
+  // Mock group data (can be replaced with Firestore later)
   const [groups, setGroups] = useState([]);
 
-  // Load groups from Firestore
   useEffect(() => {
-    async function loadGroups() {
-      const querySnap = await getDocs(collection(db, "communities"));
-      const list = querySnap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setGroups(list);
-    }
-    loadGroups();
+    const mockGroups = [
+      {
+        id: 1,
+        name: "Downtown Hoopers",
+        sport: "Basketball",
+        location: "SJSU Gym",
+        meetupTime: "6:00 PM – 8:00 PM",
+        days: ["Mon", "Wed", "Fri"],
+        members: 14,
+        description:
+          "Casual pickup games with competitive energy. All skill levels welcome."
+      },
+      {
+        id: 2,
+        name: "Early Bird Runners",
+        sport: "Running",
+        location: "Guadalupe River Trail",
+        meetupTime: "6:30 AM",
+        days: ["Tue", "Thu"],
+        members: 9,
+        description:
+          "Morning runs focusing on endurance and pacing. 3–6 mile routes."
+      },
+      {
+        id: 3,
+        name: "Weekend Soccer Crew",
+        sport: "Soccer",
+        location: "Spartan Soccer Complex",
+        meetupTime: "10:00 AM",
+        days: ["Sat"],
+        members: 18,
+        description:
+          "Competitive but friendly matches every weekend. Bring cleats!"
+      },
+      {
+        id: 4,
+        name: "Sunset Yoga Flow",
+        sport: "Yoga",
+        location: "MLK Park",
+        meetupTime: "7:00 PM",
+        days: ["Mon", "Thu"],
+        members: 11,
+        description:
+          "Relaxed outdoor yoga sessions focusing on flexibility and recovery."
+      }
+    ];
+
+    setGroups(mockGroups);
   }, []);
 
-  // JOIN GROUP FUNCTION
-  const handleJoinGroup = async (group) => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (!user || !user.id) {
-      alert("Please login first!");
-      return;
-    }
-
-    // 🔥 DEMO USER MODE — store joined groups locally only
-    if (user.id === "aHWFsUxIMbO86C3c74666ynhGyG3") {
-      const joined = JSON.parse(localStorage.getItem("demoJoinedGroups")) || [];
-
-      if (!joined.includes(group.id)) {
-        joined.push(group.id);
-        localStorage.setItem("demoJoinedGroups", JSON.stringify(joined));
-      }
-
-      alert(`Joined ${group.title}! (Demo Mode)`);
-      return;
-    }
-
-    // 🔥 REAL FIREBASE USER — update Firestore
-    try {
-      await updateDoc(doc(db, "users", user.id), {
-        joinedGroups: arrayUnion(group.id)
-      });
-
-      await updateDoc(doc(db, "communities", group.id), {
-        members: arrayUnion(user.id)
-      });
-
-      alert(`Joined ${group.title}!`);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to join group.");
-    }
+  const handleJoinGroup = (groupName) => {
+    alert(`You joined ${groupName}`);
   };
 
   return (
-    <Container sx={{ mt: 5 }}>
+    <Container maxWidth="md" sx={{ mt: 5 }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
-        Sports Groups & Communities
+        Sports Groups
       </Typography>
 
-      <Typography color="text.secondary" sx={{ mb: 3 }}>
-        Join local sports groups, find teammates, chat, and plan meetups.
-      </Typography>
-
-      {groups.map(group => {
-        const demoJoined =
-          JSON.parse(localStorage.getItem("demoJoinedGroups")) || [];
-        const alreadyJoined = demoJoined.includes(group.id);
-
-        return (
-          <Card key={group.id} sx={{ mb: 3, boxShadow: 3 }}>
+      <Stack spacing={3}>
+        {groups.map((group) => (
+          <Card key={group.id} sx={{ borderRadius: 3, boxShadow: 3 }}>
             <CardContent>
-              <Typography variant="h5" fontWeight="bold">
-                {group.title}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center"
+                }}
+              >
+                <Typography variant="h5" fontWeight="bold">
+                  {group.name}
+                </Typography>
+                <Chip label={group.sport} color="primary" />
+              </Box>
+
+              <Typography color="text.secondary" sx={{ mt: 1 }}>
+                📍 {group.location}
               </Typography>
 
               <Typography sx={{ mt: 1 }}>
-                <strong>Sport:</strong> {group.sport}
+                🕒 <strong>{group.meetupTime}</strong>
               </Typography>
 
-              <Typography>
-                <strong>Members:</strong> {group.members?.length || 0}
+              <Typography sx={{ mt: 0.5 }}>
+                📅 {group.days.join(", ")}
               </Typography>
 
-              <Box sx={{ mb: 2 }}>
-                <Chip label={group.sport} sx={{ mr: 1, mb: 1 }} />
-              </Box>
+              <Typography sx={{ mt: 0.5 }}>
+                👥 {group.members} members
+              </Typography>
 
+              <Typography color="text.secondary" sx={{ mt: 2 }}>
+                {group.description}
+              </Typography>
+            </CardContent>
+
+            <CardActions sx={{ justifyContent: "flex-end", px: 2, pb: 2 }}>
               <Button
                 variant="contained"
-                disabled={alreadyJoined}
-                onClick={() => handleJoinGroup(group)}
+                onClick={() => handleJoinGroup(group.name)}
               >
-                {alreadyJoined ? "Joined" : "Join Group"}
+                Join Group
               </Button>
-            </CardContent>
+            </CardActions>
           </Card>
-        );
-      })}
+        ))}
+      </Stack>
     </Container>
   );
 }

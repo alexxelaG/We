@@ -8,7 +8,9 @@ import {
   Button,
   Box,
   Avatar,
-  MenuItem
+  MenuItem,
+  ToggleButton,
+  ToggleButtonGroup
 } from "@mui/material";
 
 import { auth, db } from "../firebase";
@@ -30,22 +32,32 @@ export default function ProfilePage() {
   const [skillLevel, setSkillLevel] = useState("");
   const [bio, setBio] = useState("");
 
+  // Profile picture (display-only now)
+  const [profilePic, setProfilePic] = useState(
+    "https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+  );
+
+  // Availability
+  const [availability, setAvailability] = useState([]);
+
   useEffect(() => {
     const demoUser = JSON.parse(localStorage.getItem("user"));
 
     if (demoUser && demoUser.id) {
-      console.log("Loading DEMO USER:", demoUser);
-
       setIsDemo(true);
       setUserId(demoUser.id);
       setName(demoUser.name);
       setEmail(demoUser.email);
-      setFavoriteSport("Basketball");
-      setSkillLevel("Beginner");
-      setBio("I love staying active and meeting new people!");
-
+      setFavoriteSport(demoUser.favoriteSport || "Basketball");
+      setSkillLevel(demoUser.skillLevel || "Beginner");
+      setBio(demoUser.bio || "I love staying active and meeting new people!");
+      setAvailability(demoUser.availability || []);
+      setProfilePic(
+        demoUser.profilePic ||
+          "https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+      );
       setLoading(false);
-      return; 
+      return;
     }
 
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -66,6 +78,11 @@ export default function ProfilePage() {
         setFavoriteSport(data.favoriteSport || "Basketball");
         setSkillLevel(data.skillLevel || "Beginner");
         setBio(data.bio || "I love staying active and meeting new people!");
+        setAvailability(data.availability || []);
+        setProfilePic(
+          data.profilePic ||
+            "https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+        );
       }
 
       setLoading(false);
@@ -82,7 +99,9 @@ export default function ProfilePage() {
         email,
         favoriteSport,
         skillLevel,
-        bio
+        bio,
+        availability,
+        profilePic
       };
 
       localStorage.setItem("user", JSON.stringify(updated));
@@ -95,7 +114,9 @@ export default function ProfilePage() {
         name,
         favoriteSport,
         skillLevel,
-        bio
+        bio,
+        availability,
+        profilePic
       });
 
       alert("Profile updated!");
@@ -105,9 +126,6 @@ export default function ProfilePage() {
     }
   };
 
-  // ---------------------------------------------
-  // 4️⃣ LOGOUT HANDLING
-  // ---------------------------------------------
   const handleLogout = async () => {
     if (isDemo) {
       localStorage.removeItem("user");
@@ -119,7 +137,13 @@ export default function ProfilePage() {
     navigate("/login");
   };
 
-  if (loading) return <Typography sx={{ mt: 10, textAlign: "center" }}>Loading...</Typography>;
+  if (loading) {
+    return (
+      <Typography sx={{ mt: 10, textAlign: "center" }}>
+        Loading...
+      </Typography>
+    );
+  }
 
   return (
     <Container maxWidth="sm" sx={{ mt: 5 }}>
@@ -129,9 +153,11 @@ export default function ProfilePage() {
 
       <Card sx={{ p: 2, boxShadow: 3 }}>
         <CardContent>
-
           <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
-            <Avatar src="https://i.imgur.com/1Q9Z1Zm.png" sx={{ width: 120, height: 120 }} />
+            <Avatar
+              src={profilePic}
+              sx={{ width: 120, height: 120 }}
+            />
           </Box>
 
           <TextField
@@ -159,7 +185,9 @@ export default function ProfilePage() {
             sx={{ mb: 2 }}
           >
             {["Basketball", "Soccer", "Tennis", "Running", "Pickleball", "Volleyball"].map((sport) => (
-              <MenuItem key={sport} value={sport}>{sport}</MenuItem>
+              <MenuItem key={sport} value={sport}>
+                {sport}
+              </MenuItem>
             ))}
           </TextField>
 
@@ -186,6 +214,26 @@ export default function ProfilePage() {
             sx={{ mb: 3 }}
           />
 
+          {/* Availability */}
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            Availability
+          </Typography>
+
+          <ToggleButtonGroup
+            value={availability}
+            onChange={(e, newAvailability) =>
+              setAvailability(newAvailability)
+            }
+            size="small"
+            sx={{ flexWrap: "wrap", mb: 3 }}
+          >
+            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+              <ToggleButton key={day} value={day} sx={{ m: 0.5 }}>
+                {day}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Button variant="contained" onClick={handleSave}>
               Save Changes
@@ -195,7 +243,6 @@ export default function ProfilePage() {
               Logout
             </Button>
           </Box>
-
         </CardContent>
       </Card>
     </Container>
